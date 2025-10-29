@@ -30,8 +30,18 @@ def clean_csv():
     # Sort by class and then by name
     df = df.sort_values(['Class', 'Enter Your Name'])
     
-    # Save cleaned CSV
+    # Save cleaned CSV (remove any existing file/directory first)
     cleaned_filename = 'food_pref_cleaned.csv'
+    import os
+    import shutil
+    
+    # Remove existing file or directory if it exists
+    if os.path.exists(cleaned_filename):
+        if os.path.isfile(cleaned_filename):
+            os.remove(cleaned_filename)
+        elif os.path.isdir(cleaned_filename):
+            shutil.rmtree(cleaned_filename)
+            
     df.to_csv(cleaned_filename, index=False)
     
     print(f"✅ Cleaned CSV saved as: {cleaned_filename}")
