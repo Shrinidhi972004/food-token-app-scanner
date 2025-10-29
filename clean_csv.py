@@ -30,21 +30,35 @@ def clean_csv():
     # Sort by class and then by name
     df = df.sort_values(['Class', 'Enter Your Name'])
     
-    # Save cleaned CSV (remove any existing file/directory first)
-    cleaned_filename = 'food_pref_cleaned.csv'
+    # Save cleaned CSV with a unique filename to avoid conflicts
     import os
-    import shutil
+    import time
     
-    # Remove existing file or directory if it exists
-    if os.path.exists(cleaned_filename):
-        if os.path.isfile(cleaned_filename):
-            os.remove(cleaned_filename)
-        elif os.path.isdir(cleaned_filename):
-            shutil.rmtree(cleaned_filename)
-            
+    # Use a timestamped filename to avoid conflicts
+    timestamp = str(int(time.time()))
+    cleaned_filename = f'food_pref_cleaned_{timestamp}.csv'
+    
+    # If the standard filename exists and is a file, try to remove it
+    standard_filename = 'food_pref_cleaned.csv'
+    if os.path.exists(standard_filename) and os.path.isfile(standard_filename):
+        try:
+            os.remove(standard_filename)
+        except:
+            pass  # If we can't remove it, just use the timestamped name
+    
+    # Save the cleaned CSV
     df.to_csv(cleaned_filename, index=False)
     
-    print(f"✅ Cleaned CSV saved as: {cleaned_filename}")
+    # Try to create a symlink or copy to the standard name
+    if not os.path.exists(standard_filename):
+        try:
+            import shutil
+            shutil.copy2(cleaned_filename, standard_filename)
+        except:
+            # If copy fails, just use the timestamped file
+            standard_filename = cleaned_filename
+    
+    print(f"✅ Cleaned CSV saved as: {standard_filename}")
     print(f"📊 Final count: {len(df)} students")
     
     # Show sample of cleaned data

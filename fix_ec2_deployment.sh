@@ -3,28 +3,27 @@
 
 echo "🔧 EC2 DEPLOYMENT FIX"
 echo "==================="
-echo "Fixing the food_pref_cleaned.csv directory issue..."
+echo "Fixing deployment issues..."
 
-# Remove the problematic directory if it exists
-if [ -d "food_pref_cleaned.csv" ]; then
-    echo "🗑️ Removing food_pref_cleaned.csv directory..."
-    rm -rf food_pref_cleaned.csv
-    echo "✅ Directory removed"
-fi
+# Stop containers first
+echo "🛑 Stopping Docker containers..."
+docker-compose down
 
-# Also clean up any other potential issues
-if [ -d "qr_codes_jpeg" ]; then
-    echo "🧹 Cleaning QR codes directory..."
-    rm -rf qr_codes_jpeg/*
-    echo "✅ QR codes cleaned"
-fi
+# Force remove any problematic directories (use privileged mode if needed)
+echo "🗑️ Cleaning up conflicting files..."
+sudo rm -rf food_pref_cleaned.csv 2>/dev/null || true
+rm -f food_pref_cleaned_*.csv 2>/dev/null || true
 
-if [ -f "database/food_tokens.db" ]; then
-    echo "🗄️ Removing old database..."
-    rm -f database/food_tokens.db
-    echo "✅ Database removed"
-fi
+# Clean QR codes and database
+echo "🧹 Cleaning QR codes and database..."
+rm -rf qr_codes_jpeg/* 2>/dev/null || true
+rm -f database/food_tokens.db 2>/dev/null || true
 
+# Make sure directories exist
+mkdir -p qr_codes_jpeg
+mkdir -p database
+
+echo "✅ Cleanup complete!"
 echo ""
-echo "🚀 Now retry the deployment:"
+echo "🚀 Now run the deployment again:"
 echo "bash complete_docker_deploy.sh"

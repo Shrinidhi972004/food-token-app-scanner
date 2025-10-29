@@ -153,7 +153,21 @@ def insert_user_to_db(conn, user_data):
     return cursor.lastrowid
 
 def main():
+    # Find the cleaned CSV file
     csv_file = 'food_pref_cleaned.csv'
+    
+    # If the standard file doesn't exist, look for timestamped versions
+    if not os.path.exists(csv_file):
+        import glob
+        cleaned_files = glob.glob('food_pref_cleaned_*.csv')
+        if cleaned_files:
+            # Use the most recent one
+            csv_file = max(cleaned_files, key=os.path.getctime)
+            print(f"📁 Using CSV file: {csv_file}")
+        else:
+            print("❌ No cleaned CSV file found! Please run clean_csv.py first.")
+            return
+    
     output_dir = 'qr_codes_jpeg'
     
     # Check if QR codes already exist
