@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: food-token-scanner-ingress
+  namespace: food-token-scanner
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/client-max-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: food-scanner.yourdomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: food-token-scanner-service
+            port:
+              number: 80

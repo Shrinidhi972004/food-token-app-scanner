@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  food-token-scanner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: food-token-scanner
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=3000
+      # Email configuration
+      - EMAIL_HOST=${EMAIL_HOST:-smtp.gmail.com}
+      - EMAIL_PORT=${EMAIL_PORT:-587}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-College Food Token System}
+      - EMAIL_SUBJECT=${EMAIL_SUBJECT:-Your Food Token QR Code}
+    volumes:
+      - food_scanner_db:/app/database
+      - food_scanner_uploads:/app/uploads
+      - food_scanner_qr:/app/qr_codes_jpeg
+      - food_scanner_logs:/app/logs
+      # Mount local CSV files if needed
+      - ./food_pref_cleaned.csv:/app/food_pref_cleaned.csv:ro
+      # Mount .env file for easy configuration
+      - ./.env:/app/.env:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - food_scanner_network
+
+volumes:
+  food_scanner_db:
+    driver: local
+  food_scanner_uploads:
+    driver: local
+  food_scanner_qr:
+    driver: local
+  food_scanner_logs:
+    driver: local
+
+networks:
+  food_scanner_network:
+    driver: bridge

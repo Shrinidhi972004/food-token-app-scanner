@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: food-token-scanner
+  labels:
+    name: food-token-scanner

@@ -1,0 +1,23 @@
+# Food Token Scanner System - Python Requirements
+# Install with: pip install -r requirements.txt
+
+# Core QR Code Generation
+qrcode[pil]==7.4.2
+Pillow==10.0.1
+
+# Data Processing
+pandas==2.1.4
+numpy==1.24.4
+
+# Email Functionality
+python-dotenv==1.0.0
+
+# Database (SQLite is built-in with Python)
+# No additional database requirements needed
+
+# Optional: For advanced image processing
+# opencv-python==4.8.1.78
+
+# Development and Testing
+# pytest==7.4.3
+# pytest-cov==4.1.0

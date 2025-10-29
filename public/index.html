@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Token Scanner System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: white;
+            padding: 50px 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .workflow {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .workflow h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .workflow-step {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin: 0 auto 15px;
+        }
+
+        .workflow-step h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .workflow-step p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .tech-stack {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .tech-stack h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .tech-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tech-badge {
+            background: #f8f9ff;
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 2px solid #e8ebff;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2em;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>🍽️ Food Token Scanner</h1>
+            <p>Complete food distribution management system with Google Forms integration, QR code generation, and real-time scanning capabilities for branch entry management.</p>
+            
+            <div class="action-buttons">
+                <a href="/admin" class="btn">
+                    ⚙️ Admin Dashboard
+                </a>
+                <a href="/scanner" class="btn btn-secondary">
+                    📱 Scanner Interface
+                </a>
+            </div>
+            
+            <div style="margin-top: 20px; color: #666;">
+                <span class="status-indicator"></span>
+                System is ready and operational
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">📊</span>
+                <h3>Google Forms Integration</h3>
+                <p>Upload CSV data directly from Google Forms. Automatically processes participant information including names, contact details, and food preferences.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">📲</span>
+                <h3>QR Code Generation</h3>
+                <p>Generate unique QR codes for each participant with embedded token data. Bulk download all codes as a ZIP file for easy distribution.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">📱</span>
+                <h3>Real-time Scanning</h3>
+                <p>Camera-based QR code scanning with instant validation. Display participant details and food preferences immediately upon scan.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🔒</span>
+                <h3>One-time Use Validation</h3>
+                <p>Prevent token reuse with built-in validation. Each QR code can only be scanned once, ensuring fair food distribution.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">📈</span>
+                <h3>Analytics & Reporting</h3>
+                <p>Track scanning progress, view statistics by food preference, and monitor distribution in real-time with comprehensive dashboards.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">💾</span>
+                <h3>Data Management</h3>
+                <p>Secure SQLite database storage with complete scan history, user management, and easy data export capabilities.</p>
+            </div>
+        </div>
+
+        <div class="workflow">
+            <h2>How It Works</h2>
+            <div class="workflow-steps">
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <h4>Collect Data</h4>
+                    <p>Create a Google Form to collect participant details including name, contact info, and food preference (veg/non-veg)</p>
+                </div>
+
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <h4>Upload CSV</h4>
+                    <p>Export form responses as CSV and upload to the admin dashboard for automatic processing</p>
+                </div>
+
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <h4>Generate QR Codes</h4>
+                    <p>System creates unique QR codes for each participant with embedded token and participant data</p>
+                </div>
+
+                <div class="workflow-step">
+                    <div class="step-number">4</div>
+                    <h4>Distribute Tokens</h4>
+                    <p>Download QR codes and send individual codes to participants via email or messaging</p>
+                </div>
+
+                <div class="workflow-step">
+                    <div class="step-number">5</div>
+                    <h4>Scan at Counter</h4>
+                    <p>Use the scanner interface to validate QR codes, view participant details, and track food distribution</p>
+                </div>
+
+                <div class="workflow-step">
+                    <div class="step-number">6</div>
+                    <h4>Monitor Progress</h4>
+                    <p>Track scanning statistics, view reports, and ensure smooth food distribution operations</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tech-stack">
+            <h3>Built With Modern Technology</h3>
+            <div class="tech-badges">
+                <span class="tech-badge">Node.js</span>
+                <span class="tech-badge">Express.js</span>
+                <span class="tech-badge">SQLite</span>
+                <span class="tech-badge">HTML5 QR Scanner</span>
+                <span class="tech-badge">JavaScript</span>
+                <span class="tech-badge">CSS3</span>
+                <span class="tech-badge">Responsive Design</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

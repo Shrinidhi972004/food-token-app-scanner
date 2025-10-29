@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Token Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .scanner-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .scanner-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #qr-reader {
+            margin: 0 auto;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        }
+
+        .result-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-left: 5px solid #4CAF50;
+        }
+
+        .result-card.error {
+            border-left-color: #f44336;
+        }
+
+        .result-card.warning {
+            border-left-color: #ff9800;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-icon {
+            font-size: 3em;
+            flex-shrink: 0;
+        }
+
+        .result-info h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-info p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .food-preference {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .food-veg {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .food-nonveg {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .timestamp {
+            background: #f8f9ff;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .manual-input {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            min-width: 200px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .camera-selection {
+            margin: 20px 0;
+        }
+
+        .camera-selection select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .stats-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .input-group input {
+                min-width: auto;
+            }
+
+            .result-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Food Token Scanner</h1>
+            <p>Scan QR codes to validate food tokens</p>
+            <div style="margin-top: 15px;">
+                <a href="/admin" class="btn">⚙️ Admin Dashboard</a>
+                <a href="/" class="btn">🏠 Home</a>
+            </div>
+        </div>
+
+        <div class="scanner-card">
+            <h2 style="text-align: center; margin-bottom: 20px;">
+                📷 QR Code Scanner
+            </h2>
+            
+            <div class="camera-selection">
+                <label for="cameraSelect"><strong>Select Camera:</strong></label>
+                <select id="cameraSelect">
+                    <option value="">Loading cameras...</option>
+                </select>
+            </div>
+
+            <div class="scanner-container">
+                <div id="qr-reader" style="width: 100%; max-width: 500px;"></div>
+            </div>
+
+            <div class="controls">
+                <button id="startBtn" class="btn btn-success">▶️ Start Scanner</button>
+                <button id="stopBtn" class="btn btn-danger" disabled>⏹️ Stop Scanner</button>
+                <button id="refreshStats" class="btn">🔄 Refresh Stats</button>
+            </div>
+
+            <div class="manual-input">
+                <h3 style="margin-bottom: 15px;">Manual Entry</h3>
+                <div class="input-group">
+                    <input type="text" id="manualToken" placeholder="Enter USN (e.g., 4SF22CS001) or Token...">
+                    <button id="manualScanBtn" class="btn">🔍 Validate Entry</button>
+                </div>
+                <p style="margin-top: 10px; color: #666; font-size: 14px;">
+                    💡 Enter student USN for easy access or full token for direct validation
+                </p>
+            </div>
+        </div>
+
+        <div id="scanResult" class="hidden"></div>
+
+        <div class="stats-summary" id="statsContainer">
+            <div class="stat-item">
+                <div class="stat-number" id="totalUsers">-</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="scannedCount">-</div>
+                <div class="stat-label">Scanned</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="vegCount">-</div>
+                <div class="stat-label">Veg</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="nonVegCount">-</div>
+                <div class="stat-label">Non-Veg</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let html5QrCode;
+        let cameras = [];
+        let isScanning = false;
+        let lastScanTime = 0;
+        const SCAN_COOLDOWN = 3000; // 3 seconds cooldown between scans
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadCameras();
+            loadStats();
+            
+            // Auto-start scanning after page loads
+            setTimeout(() => {
+                startScanning();
+            }, 1000);
+        });
+
+        function setupEventListeners() {
+            document.getElementById('startBtn').addEventListener('click', startScanning);
+            document.getElementById('stopBtn').addEventListener('click', stopScanning);
+            document.getElementById('manualScanBtn').addEventListener('click', manualScan);
+            document.getElementById('refreshStats').addEventListener('click', loadStats);
+            
+            // Enter key for manual input
+            document.getElementById('manualToken').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    manualScan();
+                }
+            });
+        }
+
+        async function loadCameras() {
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                cameras = devices;
+                
+                const select = document.getElementById('cameraSelect');
+                select.innerHTML = '';
+                
+                if (devices.length === 0) {
+                    select.innerHTML = '<option value="">No cameras found</option>';
+                    return;
+                }
+
+                devices.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.id;
+                    option.textContent = device.label || `Camera ${index + 1}`;
+                    select.appendChild(option);
+                });
+
+                // Select back camera by default if available
+                const backCamera = devices.find(device => 
+                    device.label.toLowerCase().includes('back') || 
+                    device.label.toLowerCase().includes('rear')
+                );
+                if (backCamera) {
+                    select.value = backCamera.id;
+                }
+
+            } catch (error) {
+                console.error('Error loading cameras:', error);
+                document.getElementById('cameraSelect').innerHTML = '<option value="">Camera access denied</option>';
+            }
+        }
+
+        async function startScanning() {
+            const cameraSelect = document.getElementById('cameraSelect');
+            const selectedCameraId = cameraSelect.value;
+            
+            if (!selectedCameraId) {
+                // Auto-select first available camera if none selected
+                if (cameras.length > 0) {
+                    cameraSelect.value = cameras[0].id;
+                } else {
+                    alert('No cameras available');
+                    return;
+                }
+            }
+
+            try {
+                html5QrCode = new Html5Qrcode("qr-reader");
+                
+                await html5QrCode.start(
+                    selectedCameraId || cameras[0].id,
+                    {
+                        fps: 15, // Higher FPS for better detection
+                        qrbox: { width: 300, height: 300 }, // Larger scan area
+                        aspectRatio: 1.0, // Square aspect ratio
+                        disableFlip: false // Allow scanning from different orientations
+                    },
+                    onScanSuccess,
+                    onScanFailure
+                );
+
+                isScanning = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                cameraSelect.disabled = true;
+                
+                // Show scanning indicator
+                showScanningIndicator();
+
+            } catch (error) {
+                console.error('Error starting scanner:', error);
+                alert('Unable to start camera. Please check permissions and try again.');
+            }
+        }
+
+        async function stopScanning() {
+            if (html5QrCode && isScanning) {
+                try {
+                    await html5QrCode.stop();
+                    html5QrCode.clear();
+                } catch (error) {
+                    console.error('Error stopping scanner:', error);
+                }
+            }
+
+            isScanning = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('cameraSelect').disabled = false;
+            
+            // Remove scanning indicator
+            hideScanningIndicator();
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            const currentTime = Date.now();
+            
+            // Check cooldown to prevent rapid successive scans
+            if (currentTime - lastScanTime < SCAN_COOLDOWN) {
+                console.log('Scan cooldown active, ignoring...');
+                return;
+            }
+            
+            lastScanTime = currentTime;
+            console.log('QR Code scanned:', decodedText);
+            
+            // Visual feedback - flash the scanner
+            const qrReader = document.getElementById('qr-reader');
+            qrReader.style.border = '4px solid #4CAF50';
+            setTimeout(() => {
+                qrReader.style.border = '';
+            }, 500);
+            
+            processScan(decodedText);
+        }
+
+        function onScanFailure(error) {
+            // Ignore scan failures - they happen continuously while scanning
+        }
+
+        function manualScan() {
+            const tokenInput = document.getElementById('manualToken');
+            const token = tokenInput.value.trim();
+            
+            if (!token) {
+                alert('Please enter a token');
+                return;
+            }
+
+            processScan(token);
+            tokenInput.value = '';
+        }
+
+        async function processScan(qrData) {
+            const resultContainer = document.getElementById('scanResult');
+            
+            // Show loading
+            resultContainer.innerHTML = `
+                <div class="result-card">
+                    <div class="loading">🔄 Processing scan...</div>
+                </div>
+            `;
+            resultContainer.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ qrData: qrData })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Success
+                    showSuccessResult(result.user);
+                    
+                    // Play success sound
+                    playSound('success');
+                    
+                } else if (response.status === 409) {
+                    // Already used
+                    showWarningResult(result);
+                    playSound('warning');
+                    
+                } else {
+                    // Error
+                    showErrorResult(result.error);
+                    playSound('error');
+                }
+
+                // Refresh stats after scan
+                loadStats();
+
+            } catch (error) {
+                console.error('Scan processing error:', error);
+                showErrorResult('Network error occurred');
+                playSound('error');
+            }
+        }
+
+        function showSuccessResult(user) {
+            const resultContainer = document.getElementById('scanResult');
+            
+            resultContainer.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-icon">✅</div>
+                        <div class="result-info">
+                            <h2>${user.name}</h2>
+                            <p><strong>Status:</strong> Token Successfully Validated</p>
+                            ${user.usn ? `<p><strong>USN:</strong> ${user.usn}</p>` : ''}
+                            ${user.class_name ? `<p><strong>Class:</strong> ${user.class_name}</p>` : ''}
+                            ${user.email ? `<p><strong>Email:</strong> ${user.email}</p>` : ''}
+                            ${user.phone ? `<p><strong>Phone:</strong> ${user.phone}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="food-preference food-${user.food_preference === 'veg' ? 'veg' : 'nonveg'}">
+                        ${user.food_preference === 'veg' ? '🥗 VEGETARIAN' : '🍖 NON-VEGETARIAN'}
+                    </div>
+                    <div class="timestamp">
+                        Scanned at: ${new Date(user.scanned_at).toLocaleString()}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showWarningResult(result) {
+            const resultContainer = document.getElementById('scanResult');
+            
+            resultContainer.innerHTML = `
+                <div class="result-card warning">
+                    <div class="result-header">
+                        <div class="result-icon">⚠️</div>
+                        <div class="result-info">
+                            <h2>${result.user.name}</h2>
+                            <p><strong>Status:</strong> Token Already Used</p>
+                            ${result.user.usn ? `<p><strong>USN:</strong> ${result.user.usn}</p>` : ''}
+                            ${result.user.class_name ? `<p><strong>Class:</strong> ${result.user.class_name}</p>` : ''}
+                            <p><strong>Previously scanned:</strong> ${new Date(result.scanned_at).toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="food-preference food-${result.user.food_preference === 'veg' ? 'veg' : 'nonveg'}">
+                        ${result.user.food_preference === 'veg' ? '🥗 VEGETARIAN' : '🍖 NON-VEGETARIAN'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showErrorResult(error) {
+            const resultContainer = document.getElementById('scanResult');
+            
+            resultContainer.innerHTML = `
+                <div class="result-card error">
+                    <div class="result-header">
+                        <div class="result-icon">❌</div>
+                        <div class="result-info">
+                            <h2>Scan Failed</h2>
+                            <p><strong>Error:</strong> ${error}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+
+                document.getElementById('totalUsers').textContent = stats.total_users || 0;
+                document.getElementById('scannedCount').textContent = stats.scanned_count || 0;
+                document.getElementById('vegCount').textContent = stats.veg_count || 0;
+                document.getElementById('nonVegCount').textContent = stats.nonveg_count || 0;
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function playSound(type) {
+            // Create audio context for sound feedback
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Different frequencies for different types
+                switch(type) {
+                    case 'success':
+                        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+                        break;
+                    case 'warning':
+                        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                        break;
+                    case 'error':
+                        oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                        break;
+                }
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+                
+            } catch (error) {
+                // Sound not supported or blocked
+                console.log('Sound feedback not available');
+            }
+        }
+
+        function showScanningIndicator() {
+            // Add visual indicator that scanning is active
+            const qrReader = document.getElementById('qr-reader');
+            qrReader.style.border = '3px solid #4CAF50';
+            qrReader.style.borderRadius = '10px';
+            
+            // Add a subtle animation to show it's actively scanning
+            qrReader.style.boxShadow = '0 0 20px rgba(76, 175, 80, 0.3)';
+            
+            // Add scanning text overlay
+            const indicator = document.createElement('div');
+            indicator.id = 'scanning-indicator';
+            indicator.style.cssText = `
+                position: absolute;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(76, 175, 80, 0.9);
+                color: white;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: bold;
+                z-index: 1000;
+            `;
+            indicator.textContent = '📷 Scanning for QR codes...';
+            
+            const readerContainer = document.querySelector('#qr-reader').parentElement;
+            readerContainer.style.position = 'relative';
+            readerContainer.appendChild(indicator);
+        }
+
+        function hideScanningIndicator() {
+            const indicator = document.getElementById('scanning-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+            
+            const qrReader = document.getElementById('qr-reader');
+            qrReader.style.border = '';
+            qrReader.style.borderRadius = '';
+            qrReader.style.boxShadow = '';
+        }
+
+        // Handle page visibility change to manage camera
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isScanning) {
+                stopScanning();
+            }
+        });
+
+        // Handle page unload
+        window.addEventListener('beforeunload', function() {
+            if (isScanning) {
+                stopScanning();
+            }
+        });
+    </script>
+</body>
+</html>
